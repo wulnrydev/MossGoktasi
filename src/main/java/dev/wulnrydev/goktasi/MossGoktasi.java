@@ -9,6 +9,7 @@ import dev.wulnrydev.goktasi.listener.AntiAfkListener;
 import dev.wulnrydev.goktasi.listener.MeteoriteListener;
 import dev.wulnrydev.goktasi.listener.PlayerCleanupListener;
 import dev.wulnrydev.goktasi.manager.AntiAfkManager;
+import dev.wulnrydev.goktasi.manager.CustomItemManager;
 import dev.wulnrydev.goktasi.manager.MeteoriteManager;
 import dev.wulnrydev.goktasi.manager.RewardManager;
 import dev.wulnrydev.goktasi.manager.StatsManager;
@@ -33,6 +34,7 @@ public final class MossGoktasi extends JavaPlugin {
     private AntiAfkManager antiAfkManager;
     private MeteoriteManager meteoriteManager;
     private StatsManager statsManager;
+    private CustomItemManager customItemManager;
 
     @Override
     public void onEnable() {
@@ -46,6 +48,7 @@ public final class MossGoktasi extends JavaPlugin {
         this.rewardManager = new RewardManager(this);
         this.antiAfkManager = new AntiAfkManager(this);
         this.statsManager = new StatsManager(this);
+        this.customItemManager = new CustomItemManager(this);
         this.meteoriteManager = new MeteoriteManager(this);
 
         logHookStatus();
@@ -91,6 +94,7 @@ public final class MossGoktasi extends JavaPlugin {
         messageManager.reload();
         antiAfkManager.reload();
         statsManager.reload();
+        customItemManager.load();
         // Goktaslarini ve global task'i yeniden kur.
         meteoriteManager.load();
         meteoriteManager.startTask();
@@ -118,4 +122,5 @@ public final class MossGoktasi extends JavaPlugin {
     public AntiAfkManager getAntiAfkManager()   { return antiAfkManager; }
     public MeteoriteManager getMeteoriteManager() { return meteoriteManager; }
     public StatsManager getStatsManager()       { return statsManager; }
+    public CustomItemManager getCustomItemManager() { return customItemManager; }
 }

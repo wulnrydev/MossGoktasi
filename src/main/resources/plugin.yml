@@ -13,7 +13,7 @@ commands:
   goktasi:
     description: MossGoktasi ana komutu.
     aliases: [meteor, mg]
-    usage: /goktasi <reload|list|info|top>
+    usage: /goktasi <reload|list|info|top|giveitem>
     permission: goktasi.admin
 
 permissions:

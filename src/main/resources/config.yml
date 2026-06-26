@@ -55,6 +55,31 @@ leaderboard:
   empty-name: "---"
   empty-amount: "0"
 
+# ----------------------------- OZEL ESYALAR -----------------------------
+# Id'li ozel esyalar. "/goktasi giveitem <id> [oyuncu] [adet]" ile verilir.
+# Her anahtar (ornek: ozel_kilic) benzersiz bir esya id'sidir.
+#
+#  material          : Esya turu (Bukkit Material adi).
+#  amount            : Varsayilan miktar (komutta adet verilmezse bu kullanilir).
+#  name              : (istege bagli) Ozel gorunen isim. Renk kodu destekler.
+#  lore              : (istege bagli) Aciklama satirlari. Renk kodu destekler.
+#  custom-model-data : (istege bagli) Resource pack model id'si. 0/yok = uygulanmaz.
+items:
+  ozel_kilic:
+    material: DIAMOND_SWORD
+    amount: 1
+    name: "&#15FF08&lGöktaşı Kılıcı"
+    lore:
+      - "&7Bir göktaşından dövüldü."
+      - "&#ffd500Efsanevi güç!"
+    custom-model-data: 100002
+  bilet:
+    material: PAPER
+    amount: 1
+    name: "&#ffd500Göktaşı Bileti"
+    lore:
+      - "&7Bir göktaşı etkinliği bileti."
+
 # ----------------------------- ANTI-AFK -----------------------------
 # Makro / autoclicker korumasi. Belirli sayida vurustan sonra oyuncuya
 # bir GUI acilir; dogru esyaya (BARRIER) tiklamazsa afk-cmd calisir.
