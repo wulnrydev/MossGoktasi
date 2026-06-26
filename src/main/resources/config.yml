@@ -99,8 +99,9 @@ anti-afk:
 #
 #  Odul tipleri:
 #   - type: command   value: "..."       (%player% degisken destekler)
-#   - type: item      material: ...  amount: ...
+#   - type: item      material: ...  amount: ...  custom-model-data: ...
 #   chance: 0-100 arasi yuzde.
+#   custom-model-data: (istege bagli) resource pack model id'si. 0/bos = yok.
 meteorites:
   meteor1:
     world: world
@@ -137,6 +138,8 @@ meteorites:
           type: item
           material: DIAMOND
           amount: 1
+          # Istege bagli: resource pack ozel model id'si (0/yoksa uygulanmaz).
+          custom-model-data: 100001
       # Bitirici (finish) vurus odulleri.
       finish:
         - chance: 100.0

@@ -30,13 +30,16 @@ public final class Reward {
     // ITEM icin
     private final Material material;
     private final int amount;
+    // Resource pack custom model data. <= 0 ise uygulanmaz.
+    private final int customModelData;
 
-    private Reward(double chance, Type type, String command, Material material, int amount) {
+    private Reward(double chance, Type type, String command, Material material, int amount, int customModelData) {
         this.chance = chance;
         this.type = type;
         this.command = command;
         this.material = material;
         this.amount = amount;
+        this.customModelData = customModelData;
     }
 
     /**
@@ -62,7 +65,10 @@ public final class Reward {
                 return null;
             }
             int amount = Math.max(1, toInt(map.get("amount"), 1));
-            return new Reward(chance, Type.ITEM, null, mat, amount);
+            // custom-model-data veya custom_model_data anahtarini kabul et.
+            Object cmdObj = map.containsKey("custom-model-data") ? map.get("custom-model-data") : map.get("custom_model_data");
+            int customModelData = Math.max(0, toInt(cmdObj, 0));
+            return new Reward(chance, Type.ITEM, null, mat, amount, customModelData);
         }
 
         // Varsayilan: komut
@@ -71,7 +77,7 @@ public final class Reward {
         if (cmd.isBlank()) {
             return null;
         }
-        return new Reward(chance, Type.COMMAND, cmd, null, 0);
+        return new Reward(chance, Type.COMMAND, cmd, null, 0, 0);
     }
 
     private static double toDouble(Object o, double def) {
@@ -120,5 +126,14 @@ public final class Reward {
 
     public int getAmount() {
         return amount;
+    }
+
+    /** Resource pack custom model data; {@code <= 0} ise ayarlanmaz. */
+    public int getCustomModelData() {
+        return customModelData;
+    }
+
+    public boolean hasCustomModelData() {
+        return customModelData > 0;
     }
 }

@@ -5,6 +5,7 @@ import dev.wulnrydev.goktasi.model.Reward;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,6 +46,14 @@ public final class RewardManager {
             }
             case ITEM -> {
                 ItemStack item = new ItemStack(reward.getMaterial(), reward.getAmount());
+                // Resource pack custom model data (varsa) uygula.
+                if (reward.hasCustomModelData()) {
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta != null) {
+                        meta.setCustomModelData(reward.getCustomModelData());
+                        item.setItemMeta(meta);
+                    }
+                }
                 // Envanter doluysa yere birak (kayip olmasin).
                 player.getInventory().addItem(item).values()
                         .forEach(leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover));
