@@ -2,6 +2,9 @@ package dev.wulnrydev.goktasi.model;
 
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -32,14 +35,21 @@ public final class Reward {
     private final int amount;
     // Resource pack custom model data. <= 0 ise uygulanmaz.
     private final int customModelData;
+    // Ozel gorunen isim (bos ise vanilla isim kullanilir).
+    private final String displayName;
+    // Ozel lore satirlari (bos ise lore eklenmez).
+    private final List<String> lore;
 
-    private Reward(double chance, Type type, String command, Material material, int amount, int customModelData) {
+    private Reward(double chance, Type type, String command, Material material, int amount,
+                   int customModelData, String displayName, List<String> lore) {
         this.chance = chance;
         this.type = type;
         this.command = command;
         this.material = material;
         this.amount = amount;
         this.customModelData = customModelData;
+        this.displayName = displayName;
+        this.lore = lore;
     }
 
     /**
@@ -68,7 +78,11 @@ public final class Reward {
             // custom-model-data veya custom_model_data anahtarini kabul et.
             Object cmdObj = map.containsKey("custom-model-data") ? map.get("custom-model-data") : map.get("custom_model_data");
             int customModelData = Math.max(0, toInt(cmdObj, 0));
-            return new Reward(chance, Type.ITEM, null, mat, amount, customModelData);
+            // Ozel isim ve lore (istege bagli).
+            Object nameObj = map.get("name");
+            String displayName = nameObj == null ? "" : String.valueOf(nameObj);
+            List<String> lore = toStringList(map.get("lore"));
+            return new Reward(chance, Type.ITEM, null, mat, amount, customModelData, displayName, lore);
         }
 
         // Varsayilan: komut
@@ -77,7 +91,25 @@ public final class Reward {
         if (cmd.isBlank()) {
             return null;
         }
-        return new Reward(chance, Type.COMMAND, cmd, null, 0, 0);
+        return new Reward(chance, Type.COMMAND, cmd, null, 0, 0, "", Collections.emptyList());
+    }
+
+    /** YAML'den gelen bir degeri (List veya tek deger) String listesine cevirir. */
+    private static List<String> toStringList(Object o) {
+        if (o == null) {
+            return Collections.emptyList();
+        }
+        if (o instanceof List<?> rawList) {
+            List<String> out = new ArrayList<>(rawList.size());
+            for (Object item : rawList) {
+                out.add(item == null ? "" : item.toString());
+            }
+            return out;
+        }
+        // Tek satir verilmisse onu da kabul et.
+        List<String> single = new ArrayList<>(1);
+        single.add(o.toString());
+        return single;
     }
 
     private static double toDouble(Object o, double def) {
@@ -135,5 +167,23 @@ public final class Reward {
 
     public boolean hasCustomModelData() {
         return customModelData > 0;
+    }
+
+    /** Ozel gorunen isim (bos olabilir). */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public boolean hasDisplayName() {
+        return displayName != null && !displayName.isEmpty();
+    }
+
+    /** Ozel lore satirlari (bos olabilir). */
+    public List<String> getLore() {
+        return lore;
+    }
+
+    public boolean hasLore() {
+        return lore != null && !lore.isEmpty();
     }
 }

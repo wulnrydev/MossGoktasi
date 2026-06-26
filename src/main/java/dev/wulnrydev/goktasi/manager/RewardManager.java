@@ -2,6 +2,7 @@ package dev.wulnrydev.goktasi.manager;
 
 import dev.wulnrydev.goktasi.MossGoktasi;
 import dev.wulnrydev.goktasi.model.Reward;
+import dev.wulnrydev.goktasi.util.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -46,11 +47,19 @@ public final class RewardManager {
             }
             case ITEM -> {
                 ItemStack item = new ItemStack(reward.getMaterial(), reward.getAmount());
-                // Resource pack custom model data (varsa) uygula.
-                if (reward.hasCustomModelData()) {
+                // Ozel isim / lore / custom model data (varsa) uygula.
+                if (reward.hasCustomModelData() || reward.hasDisplayName() || reward.hasLore()) {
                     ItemMeta meta = item.getItemMeta();
                     if (meta != null) {
-                        meta.setCustomModelData(reward.getCustomModelData());
+                        if (reward.hasCustomModelData()) {
+                            meta.setCustomModelData(reward.getCustomModelData());
+                        }
+                        if (reward.hasDisplayName()) {
+                            meta.setDisplayName(TextUtil.color(reward.getDisplayName()));
+                        }
+                        if (reward.hasLore()) {
+                            meta.setLore(TextUtil.color(reward.getLore()));
+                        }
                         item.setItemMeta(meta);
                     }
                 }
