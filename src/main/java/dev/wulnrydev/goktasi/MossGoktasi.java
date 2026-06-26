@@ -3,6 +3,7 @@ package dev.wulnrydev.goktasi;
 import dev.wulnrydev.goktasi.command.GoktasiCommand;
 import dev.wulnrydev.goktasi.config.MessageManager;
 import dev.wulnrydev.goktasi.hook.HologramManager;
+import dev.wulnrydev.goktasi.hook.PlaceholderHook;
 import dev.wulnrydev.goktasi.hook.WorldGuardHook;
 import dev.wulnrydev.goktasi.listener.AntiAfkListener;
 import dev.wulnrydev.goktasi.listener.MeteoriteListener;
@@ -10,6 +11,7 @@ import dev.wulnrydev.goktasi.listener.PlayerCleanupListener;
 import dev.wulnrydev.goktasi.manager.AntiAfkManager;
 import dev.wulnrydev.goktasi.manager.MeteoriteManager;
 import dev.wulnrydev.goktasi.manager.RewardManager;
+import dev.wulnrydev.goktasi.manager.StatsManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -30,6 +32,7 @@ public final class MossGoktasi extends JavaPlugin {
     private RewardManager rewardManager;
     private AntiAfkManager antiAfkManager;
     private MeteoriteManager meteoriteManager;
+    private StatsManager statsManager;
 
     @Override
     public void onEnable() {
@@ -42,9 +45,16 @@ public final class MossGoktasi extends JavaPlugin {
         this.hologramManager = new HologramManager(this);
         this.rewardManager = new RewardManager(this);
         this.antiAfkManager = new AntiAfkManager(this);
+        this.statsManager = new StatsManager(this);
         this.meteoriteManager = new MeteoriteManager(this);
 
         logHookStatus();
+
+        // Siralama verisini periyodik kaydet.
+        statsManager.startAutoSave();
+
+        // PlaceholderAPI varsa siralama placeholder'larini kaydet.
+        registerPlaceholders();
 
         // Goktaslarini yukle ve global task'i baslat.
         meteoriteManager.load();
@@ -69,6 +79,9 @@ public final class MossGoktasi extends JavaPlugin {
         if (meteoriteManager != null) {
             meteoriteManager.unload();
         }
+        if (statsManager != null) {
+            statsManager.shutdown();
+        }
         getLogger().info("MossGoktasi devre disi birakildi.");
     }
 
@@ -77,9 +90,19 @@ public final class MossGoktasi extends JavaPlugin {
         reloadConfig();
         messageManager.reload();
         antiAfkManager.reload();
+        statsManager.reload();
         // Goktaslarini ve global task'i yeniden kur.
         meteoriteManager.load();
         meteoriteManager.startTask();
+    }
+
+    private void registerPlaceholders() {
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderHook(this).register();
+            getLogger().info("PlaceholderAPI: bulundu (siralama placeholder'lari etkin).");
+        } else {
+            getLogger().info("PlaceholderAPI: BULUNAMADI (siralama placeholder'lari devre disi).");
+        }
     }
 
     private void logHookStatus() {
@@ -94,4 +117,5 @@ public final class MossGoktasi extends JavaPlugin {
     public RewardManager getRewardManager()     { return rewardManager; }
     public AntiAfkManager getAntiAfkManager()   { return antiAfkManager; }
     public MeteoriteManager getMeteoriteManager() { return meteoriteManager; }
+    public StatsManager getStatsManager()       { return statsManager; }
 }

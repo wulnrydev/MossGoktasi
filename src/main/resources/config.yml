@@ -41,6 +41,20 @@ messages:
   # Bir goktasinin kendi "respawn-message" alani doluysa o oncelikli olur.
   respawn-broadcast: "&#00D420%meteorite% &7yenilendi! &#ffd500Hemen kır &7ve ödülleri kap! &e/warp Göktaşı"
 
+# --------------------------- SIRALAMA (TOP) ---------------------------
+# "En cok goktasi kiran" siralamasi. Bir oyuncu bir goktasini OLDURDUGUNDE
+# (son/olduren vurus) sayaci +1 artar. Veriler stats.yml'de saklanir.
+#
+# PlaceholderAPI kuruluysa su placeholder'lar kullanilabilir:
+#   %goktasi_kills%            -> oyuncunun kirdigi toplam goktasi
+#   %goktasi_rank%             -> oyuncunun siralamadaki yeri
+#   %goktasi_top_name_<n>%     -> n. siradaki oyuncunun adi   (or: _1, _2, _3)
+#   %goktasi_top_amount_<n>%   -> n. siradaki oyuncunun goktasi sayisi
+leaderboard:
+  # Henuz kimsenin olmadigi siralarda gosterilecek varsayilan degerler.
+  empty-name: "---"
+  empty-amount: "0"
+
 # ----------------------------- ANTI-AFK -----------------------------
 # Makro / autoclicker korumasi. Belirli sayida vurustan sonra oyuncuya
 # bir GUI acilir; dogru esyaya (BARRIER) tiklamazsa afk-cmd calisir.

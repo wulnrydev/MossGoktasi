@@ -7,21 +7,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Goktasina yapilan vuruslari dinler.
- * <ul>
- *     <li>{@link BlockBreakEvent}: goktasinin asla kirilmamasini garanti eder
- *         (iptal eder). Sayim burada YAPILMAZ; cift sayimi onlemek icin.</li>
- *     <li>{@link PlayerInteractEvent} (SOL TIK): asil vurus mekanigi. Her sol
- *         tikta can 1 duser.</li>
- * </ul>
+ * Goktasina yapilan kirma islemlerini dinler.
+ * <p>
+ * Vurus mekanigi {@link BlockBreakEvent} uzerinden calisir: oyuncu blogu
+ * GERCEKTEN kirdiginda (madencilik dongusunu tamamladiginda) bir "vurus"
+ * sayilir ve can 1 duser. Blok asla yok edilmez; event her zaman iptal edilir,
+ * boylece oyuncu blogu tekrar tekrar kirarak goktasini bitirir.
+ * <p>
+ * Not: Sol tik (PlayerInteractEvent) ARTIK sayilmaz; yalnizca gercek kirma
+ * islemi gecerlidir.
  */
 public final class MeteoriteListener implements Listener {
 
@@ -40,34 +40,23 @@ public final class MeteoriteListener implements Listener {
     }
 
     /**
-     * Goktasi blogunun gercekten kirilmasini her zaman engeller.
-     * (Survival modda obsidian gibi bloklar tamamen kirilirsa diye guvenlik agi.)
+     * Asil vurus: blogun kirilmasi. Goktasi blogu hicbir zaman gercekten
+     * yok edilmez (event iptal edilir); her tamamlanan kirma bir can dusurur.
+     * <p>
+     * {@code ignoreCancelled} KULLANILMAZ: baska bir eklenti (or. WorldGuard
+     * build korumasi) event'i iptal etse bile goktasi mantigi calismali ve
+     * blok korunmali. Bolge kontrolu eklentinin kendi {@code region} ayariyla
+     * yapilir.
      */
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBreak(BlockBreakEvent event) {
-        Meteorite meteorite = plugin.getMeteoriteManager().getAt(event.getBlock().getLocation());
-        if (meteorite != null) {
-            event.setCancelled(true);
-        }
-    }
-
-    /** Asil vurus: sol tik ile blok kirma eylemi. */
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.LEFT_CLICK_BLOCK) {
-            return;
-        }
-        Block block = event.getClickedBlock();
-        if (block == null) {
-            return;
-        }
-
+        Block block = event.getBlock();
         Meteorite meteorite = plugin.getMeteoriteManager().getAt(block.getLocation());
         if (meteorite == null) {
             return; // Goktasi degil; karismayalim.
         }
 
-        // Goktasi etkilesimi: vanilla kirma animasyonunu/etkilesimini iptal et.
+        // Goktasi blogu asla kirilmaz.
         event.setCancelled(true);
 
         Player player = event.getPlayer();

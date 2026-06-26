@@ -1,7 +1,9 @@
 package dev.wulnrydev.goktasi.model;
 
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Tek bir odul tanimi (config'deki "hit" veya "finish" listesindeki bir eleman).
@@ -38,32 +40,66 @@ public final class Reward {
     }
 
     /**
-     * Bir konfigurasyon bolumunden odul olusturur.
+     * Config'deki bir odul listesi elemanindan ({@code Map}) odul olusturur.
+     * Oduller YAML'de liste oldugundan her eleman bir {@code Map} olarak gelir.
      *
      * @return gecerli bir odul veya parse edilemezse {@code null}.
      */
-    public static Reward fromSection(ConfigurationSection section) {
-        if (section == null) {
+    public static Reward fromMap(Map<?, ?> map) {
+        if (map == null) {
             return null;
         }
-        double chance = section.getDouble("chance", 100.0);
-        String rawType = section.getString("type", "command").toUpperCase();
+        double chance = toDouble(map.get("chance"), 100.0);
+        // Locale.ROOT sart: Turkce locale'de "item".toUpperCase() -> "İTEM" olur
+        // ve "ITEM" ile eslesmezdi (Turkce-I sorunu).
+        Object typeObj = map.get("type");
+        String rawType = (typeObj == null ? "COMMAND" : typeObj.toString().toUpperCase(Locale.ROOT));
 
         if ("ITEM".equals(rawType)) {
-            Material mat = Material.matchMaterial(section.getString("material", ""));
+            Object matObj = map.get("material");
+            Material mat = matObj == null ? null : Material.matchMaterial(String.valueOf(matObj));
             if (mat == null) {
                 return null;
             }
-            int amount = Math.max(1, section.getInt("amount", 1));
+            int amount = Math.max(1, toInt(map.get("amount"), 1));
             return new Reward(chance, Type.ITEM, null, mat, amount);
         }
 
         // Varsayilan: komut
-        String cmd = section.getString("value", "");
+        Object valObj = map.get("value");
+        String cmd = valObj == null ? "" : String.valueOf(valObj);
         if (cmd.isBlank()) {
             return null;
         }
         return new Reward(chance, Type.COMMAND, cmd, null, 0);
+    }
+
+    private static double toDouble(Object o, double def) {
+        if (o instanceof Number n) {
+            return n.doubleValue();
+        }
+        if (o != null) {
+            try {
+                return Double.parseDouble(o.toString().trim());
+            } catch (NumberFormatException ignored) {
+                // Gecersiz deger; varsayilana dus.
+            }
+        }
+        return def;
+    }
+
+    private static int toInt(Object o, int def) {
+        if (o instanceof Number n) {
+            return n.intValue();
+        }
+        if (o != null) {
+            try {
+                return Integer.parseInt(o.toString().trim());
+            } catch (NumberFormatException ignored) {
+                // Gecersiz deger; varsayilana dus.
+            }
+        }
+        return def;
     }
 
     public double getChance() {

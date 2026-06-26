@@ -8,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tek bir goktasini (meteorite) temsil eden veri objesi.
@@ -112,21 +113,23 @@ public final class Meteorite {
         List<String> lines = holo != null ? holo.getStringList("lines") : Collections.emptyList();
         List<String> respawnLines = holo != null ? holo.getStringList("respawn-lines") : Collections.emptyList();
 
-        List<Reward> hit = readRewards(s.getConfigurationSection("rewards.hit"));
-        List<Reward> finish = readRewards(s.getConfigurationSection("rewards.finish"));
+        // Oduller config'de bir LISTE olarak tanimlidir (her eleman "- chance: ...").
+        // Bu yuzden getMapList ile okunur; getConfigurationSection bir liste icin
+        // null donerdi ve tum oduller sessizce kaybolurdu.
+        List<Reward> hit = readRewards(s.getMapList("rewards.hit"));
+        List<Reward> finish = readRewards(s.getMapList("rewards.finish"));
 
         return new Meteorite(id, worldName, x, y, z, block, maxHealth, respawnTime, finishThreshold,
                 region, displayName, respawnMessage, height, lines, respawnLines, hit, finish);
     }
 
-    private static List<Reward> readRewards(ConfigurationSection section) {
-        if (section == null) {
+    private static List<Reward> readRewards(List<Map<?, ?>> rawList) {
+        if (rawList == null || rawList.isEmpty()) {
             return Collections.emptyList();
         }
-        java.util.List<Reward> list = new java.util.ArrayList<>();
-        for (String key : section.getKeys(false)) {
-            ConfigurationSection rewardSection = section.getConfigurationSection(key);
-            Reward reward = Reward.fromSection(rewardSection);
+        List<Reward> list = new java.util.ArrayList<>(rawList.size());
+        for (Map<?, ?> entry : rawList) {
+            Reward reward = Reward.fromMap(entry);
             if (reward != null) {
                 list.add(reward);
             }
@@ -154,16 +157,6 @@ public final class Meteorite {
     public Location getHologramLocation() {
         Location base = getLocation();
         return base == null ? null : base.clone().add(0.5, hologramHeight, 0.5);
-    }
-
-    /** Verilen konum bu goktasinin blogu mu? */
-    public boolean matches(Location loc) {
-        return loc != null
-                && loc.getBlockX() == x
-                && loc.getBlockY() == y
-                && loc.getBlockZ() == z
-                && loc.getWorld() != null
-                && loc.getWorld().getName().equals(worldName);
     }
 
     // ------------------------------------------------------------------

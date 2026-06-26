@@ -173,6 +173,8 @@ public final class MeteoriteManager {
         }
 
         if (newHealth <= 0) {
+            // Olduren vurus: siralamada bu oyuncuya +1 goktasi.
+            plugin.getStatsManager().addKill(player);
             die(m);
         } else {
             // Can degisti -> hologrami gunceller (asenkron).

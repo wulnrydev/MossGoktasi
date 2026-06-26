@@ -1,6 +1,7 @@
 package dev.wulnrydev.goktasi.command;
 
 import dev.wulnrydev.goktasi.MossGoktasi;
+import dev.wulnrydev.goktasi.manager.StatsManager;
 import dev.wulnrydev.goktasi.model.Meteorite;
 import dev.wulnrydev.goktasi.util.TextUtil;
 import org.bukkit.command.Command;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,11 +36,11 @@ public final class GoktasiCommand implements TabExecutor {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(TextUtil.color("&7/goktasi &#00D420reload &7| &#00D420list &7| &#00D420info <id>"));
+            sender.sendMessage(TextUtil.color("&7/goktasi &#00D420reload &7| &#00D420list &7| &#00D420info <id> &7| &#00D420top"));
             return true;
         }
 
-        switch (args[0].toLowerCase()) {
+        switch (args[0].toLowerCase(Locale.ROOT)) {
             case "reload" -> {
                 plugin.reloadAll();
                 plugin.getMessageManager().sendReload(sender);
@@ -65,6 +67,20 @@ public final class GoktasiCommand implements TabExecutor {
                         + " &7| Can: &#ffd500" + m.getCurrentHealth() + "/" + m.getMaxHealth()
                         + " &7| Durum: &#ffd500" + (m.isAlive() ? "Canlı" : "Yenileniyor (" + m.getRespawnSecondsLeft() + "s)"));
             }
+            case "top" -> {
+                List<StatsManager.TopEntry> entries = plugin.getStatsManager().getTop(10);
+                if (entries.isEmpty()) {
+                    plugin.getMessageManager().send(sender, "&7Henüz göktaşı kıran &#ffd500yok&7.");
+                    return true;
+                }
+                plugin.getMessageManager().send(sender, "&#00D420En Çok Göktaşı Kıranlar:");
+                int rank = 1;
+                for (StatsManager.TopEntry e : entries) {
+                    plugin.getMessageManager().send(sender, "&7" + rank + ". &#ffd500" + e.name()
+                            + " &7- &#00D420" + e.kills() + " &7göktaşı");
+                    rank++;
+                }
+            }
             default -> plugin.getMessageManager().send(sender, "&7Bilinmeyen alt komut.");
         }
         return true;
@@ -77,14 +93,14 @@ public final class GoktasiCommand implements TabExecutor {
             return Collections.emptyList();
         }
         if (args.length == 1) {
-            return Stream.of("reload", "list", "info")
-                    .filter(s -> s.startsWith(args[0].toLowerCase()))
+            return Stream.of("reload", "list", "info", "top")
+                    .filter(s -> s.startsWith(args[0].toLowerCase(Locale.ROOT)))
                     .collect(Collectors.toList());
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("info")) {
             return plugin.getMeteoriteManager().getMeteorites().stream()
                     .map(Meteorite::getId)
-                    .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT)))
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
