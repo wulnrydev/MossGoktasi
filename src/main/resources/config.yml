@@ -1,0 +1,166 @@
+# ===================================================================
+#  MossGoktasi  -  wulnrydev
+#  PaperMC 1.20+  |  %100 optimize  |  sifir lag
+# ===================================================================
+#  Renk kullanimi:
+#   - HEX renkler:  &#RRGGBB   (or:  &#00D420)
+#   - Eski renkler: &7, &c, &a ...
+#   - Stiller:      &l (kalin), &o (italik) vb.
+# ===================================================================
+
+# Genel ayarlar
+settings:
+  # Respawn / hologram kontrol task'inin tick araligi (20 tick = 1 saniye).
+  # Tum goktaslari TEK bir global task ile kontrol edilir (CPU dostu).
+  task-interval-ticks: 20
+
+  # Ayni oyuncunun cok hizli (autoclicker) vurus saymasini engellemek icin
+  # iki vurus arasi minimum sure (milisaniye). 0 = kapali.
+  hit-cooldown-ms: 0
+
+  # WorldGuard bolge kontrolu (her goktasi icin ayri region tanimlanir).
+  worldguard:
+    # Genel acma/kapama. false ise hic kontrol yapilmaz.
+    enabled: true
+
+  # Bir goktasi yenilendiginde tum oyunculara duyuru gonderilsin mi?
+  broadcast-respawn: true
+
+# ----------------------------- MESAJLAR -----------------------------
+messages:
+  prefix: "&#15FF08&lGöktaşı &8▸ "
+  # WorldGuard bolge disinda vurus yapilirsa:
+  no-region: "&7Göktaşlarını sadece &#ffd500kırmızı alanlar &7içerisinde kırabilirsin."
+  # Goktasi yenilenirken vurulursa:
+  respawning: "&7Bu göktaşı şu anda &#ffd500yenileniyor&7, lütfen bekle."
+  # /goktasi reload
+  reload: "&7Konfigürasyon &#00D420başarıyla yeniden yüklendi&7."
+  no-permission: "&7Bunu yapmak için &#ffd500yetkin yok&7."
+  # Goktasi yenilendiginde tum oyunculara gonderilen GLOBAL duyuru.
+  # %meteorite% -> goktasinin "display-name" degeri ile degisir.
+  # Bir goktasinin kendi "respawn-message" alani doluysa o oncelikli olur.
+  respawn-broadcast: "&#00D420%meteorite% &7yenilendi! &#ffd500Hemen kır &7ve ödülleri kap! &e/warp Göktaşı"
+
+# ----------------------------- ANTI-AFK -----------------------------
+# Makro / autoclicker korumasi. Belirli sayida vurustan sonra oyuncuya
+# bir GUI acilir; dogru esyaya (BARRIER) tiklamazsa afk-cmd calisir.
+anti-afk:
+  mode: true
+  # Kac vurusta bir GUI acilacak (min-max arasi RASTGELE secilir).
+  break-times-afk: 150-200
+  # Oyuncu menuyu kapatirsa veya yanlis esyaya tiklarsa calisacak komut.
+  afk-cmd: "kick %player% &cGöktaşını makro ile kırdığın için atıldın."
+  afk-gui:
+    title: '&cGöktaşı AFK Koruması'
+    # Envanter boyutu (9'un kati: 9, 18, 27, 36, 45, 54)
+    size: 27
+    # Bos slotlari dolduran esya (cam panel vb.). NONE = doldurma.
+    fills: BLACK_STAINED_GLASS_PANE
+  afk-item:
+    item: BARRIER
+    # Dogru esyanin yerlesecegi slot.
+    slot: 13
+    name: '&cTIKLA!'
+    lore:
+    - '&7'
+    - '&7▫ &cBu eşyaya tıkla ve göktaşını,'
+    - '&7▫ &ckırmaya devam et!'
+    - '&7'
+
+# ---------------------------- GOKTASLARI ----------------------------
+# Sinirsiz sayida goktasi tanimlayabilirsin. Her anahtar (ornek: meteor1)
+# benzersiz bir goktasidir.
+#
+#  block          : Saglam (canli) haldeki blok.
+#  max-health     : Maksimum can.
+#  respawn-time   : Olunce kac saniye sonra yenilenecek.
+#  finish-threshold: Son kac vuruşta "finish" odulu verilir.
+#                    0 -> sadece olduren vurus. 3 -> son 3 vurus (can 2,1,0 iken).
+#  NOT: Bir goktasini config'den silersen dunyadaki blok yerinde kalir
+#       (otomatik temizlenmez); gerekirse blogu elle kaldir.
+#  region         : WorldGuard region adi (bos ise kontrol yapilmaz).
+#  display-name   : Duyurularda gosterilecek isim (%meteorite% bununla degisir).
+#  respawn-message: Bu goktasina OZEL yenilenme duyurusu. Bos ise global
+#                   "messages.respawn-broadcast" kullanilir. "NONE" -> duyuru yok.
+#
+#  Odul tipleri:
+#   - type: command   value: "..."       (%player% degisken destekler)
+#   - type: item      material: ...  amount: ...
+#   chance: 0-100 arasi yuzde.
+meteorites:
+  meteor1:
+    world: world
+    x: 100
+    y: 70
+    z: 100
+    block: OBSIDIAN
+    max-health: 50
+    respawn-time: 60
+    finish-threshold: 0
+    region: meteor_zone
+    display-name: "&#15FF08Normal Göktaşı"
+    # Bos birakirsan global "messages.respawn-broadcast" kullanilir.
+    respawn-message: ""
+    hologram:
+      # Hologramin blogun kac blok ustunde duracagi.
+      height: 1.5
+      # Canli haldeki satirlar. %health% %max_health% destekler.
+      lines:
+        - "&#15FF08&lGÖKTAŞI"
+        - "&7Can: &#00D420%health%&7/&#00D420%max_health%"
+        - "&7Vur ve ödül kazan!"
+      # Yenilenirken gosterilecek satirlar. %time% kalan saniyeyi verir.
+      respawn-lines:
+        - "&#15FF08&lGÖKTAŞI"
+        - "&7Yenileniyor... Kalan süre: &#ffd500%time%s"
+    rewards:
+      # Her normal vurusta degerlendirilen oduller.
+      hit:
+        - chance: 100.0
+          type: command
+          value: "eco give %player% 10"
+        - chance: 5.0
+          type: item
+          material: DIAMOND
+          amount: 1
+      # Bitirici (finish) vurus odulleri.
+      finish:
+        - chance: 100.0
+          type: command
+          value: "eco give %player% 500"
+        - chance: 50.0
+          type: item
+          material: DIAMOND_BLOCK
+          amount: 2
+
+  # Ikinci ornek goktasi (kopyalayip cogaltabilirsin).
+  meteor2:
+    world: world
+    x: 150
+    y: 65
+    z: -200
+    block: NETHERITE_BLOCK
+    max-health: 120
+    respawn-time: 120
+    finish-threshold: 3
+    region: ""
+    display-name: "&#ffd500Efsanevi Göktaşı"
+    # Bu goktasina OZEL duyuru (global mesaji ezer).
+    respawn-message: "&#ffd500%meteorite% &7düştü! &#00D420İlk kıran ödülü kapar, koşun!"
+    hologram:
+      height: 1.5
+      lines:
+        - "&#ffd500&lEFSANEVİ GÖKTAŞI"
+        - "&7Can: &#00D420%health%&7/&#00D420%max_health%"
+      respawn-lines:
+        - "&#ffd500&lEFSANEVİ GÖKTAŞI"
+        - "&7Yenileniyor... Kalan süre: &#ffd500%time%s"
+    rewards:
+      hit:
+        - chance: 100.0
+          type: command
+          value: "eco give %player% 25"
+      finish:
+        - chance: 100.0
+          type: command
+          value: "crate give %player% legendary 1"

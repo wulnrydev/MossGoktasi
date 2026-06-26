@@ -1,0 +1,21 @@
+name: MossGoktasi
+version: ${project.version}
+main: dev.wulnrydev.goktasi.MossGoktasi
+api-version: '1.20'
+author: wulnrydev
+description: goktasi
+softdepend:
+  - DecentHolograms
+  - WorldGuard
+
+commands:
+  goktasi:
+    description: MossGoktasi ana komutu.
+    aliases: [meteor, mg]
+    usage: /goktasi <reload|list|info>
+    permission: goktasi.admin
+
+permissions:
+  goktasi.admin:
+    description: MossGoktasi yonetici komutlarina erisim.
+    default: op
